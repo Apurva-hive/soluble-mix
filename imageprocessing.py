@@ -7,7 +7,7 @@ import numpy as np
 import copy
 
 # Main Application Class
-# check
+
 class ImageEditorApp:
     def __init__(self, root):
         self.root = root
@@ -45,6 +45,26 @@ class ImageEditorApp:
         self.resize_slider = tk.Scale(self.controls, from_=10, to=200, orient='horizontal', label='Resize %', command=self.resize_image)
         self.resize_slider.set(100)
         self.resize_slider.pack(pady=5)
+        # Undo and Redo buttons
+        self.undo_btn = tk.Button(self.controls, text="Undo", command=self.undo)
+        self.undo_btn.pack(pady=5)
+
+        self.redo_btn = tk.Button(self.controls, text="Redo", command=self.redo)
+        self.redo_btn.pack(pady=5)
+
+        # Grayscale filter button
+        self.filter_btn = tk.Button(self.controls, text="Apply Grayscale Filter", command=self.apply_grayscale)
+        self.filter_btn.pack(pady=5)
+
+        # Color filter buttons grouped in a frame
+        self.color_frame = tk.LabelFrame(self.controls, text="Color Filters")
+        self.color_frame.pack(pady=10)
+
+        # Buttons for color tints
+        tk.Button(self.color_frame, text="Red Tint", command=lambda: self.apply_color_tint('red')).pack(fill='x')
+        tk.Button(self.color_frame, text="Green Tint", command=lambda: self.apply_color_tint('green')).pack(fill='x')
+        tk.Button(self.color_frame, text="Blue Tint", command=lambda: self.apply_color_tint('blue')).pack(fill='x')
+        tk.Button(self.color_frame, text="Yellow Tint", command=lambda: self.apply_color_tint('yellow')).pack(fill='x')
  
         # Bind mouse events for cropping functionality
         self.canvas.bind("<ButtonPress-1>", self.on_mouse_press)
@@ -110,7 +130,51 @@ class ImageEditorApp:
         new_size = (int(self.cropped_img.shape[1] * scale), int(self.cropped_img.shape[0] * scale))
         resized = cv2.resize(self.cropped_img, new_size)
         self.display_cropped_image(resized)
+ # Undo last image change
+    def undo(self):
+        if self.undo_stack:
+            self.redo_stack.append(copy.deepcopy(self.image))
+            self.image = self.undo_stack.pop()
+            self.cropped_img = None
+            self.display_image(self.image)
+            self.cropped_canvas.delete("all")
 
+    # Redo previously undone change
+    def redo(self):
+        if self.redo_stack:
+            self.undo_stack.append(copy.deepcopy(self.image))
+            self.image = self.redo_stack.pop()
+            self.cropped_img = None
+            self.display_image(self.image)
+            self.cropped_canvas.delete("all")
+
+    # Apply grayscale effect to the image
+    def apply_grayscale(self):
+        if self.image is not None:
+            self.undo_stack.append(copy.deepcopy(self.image))
+            gray = cv2.cvtColor(self.image, cv2.COLOR_RGB2GRAY)
+            self.image = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
+            self.display_image(self.image)
+
+    # Apply a specific color tint by zeroing out other channels
+    def apply_color_tint(self, color):
+        if self.image is None:
+            return
+        self.undo_stack.append(copy.deepcopy(self.image))
+        tinted = self.image.copy()
+        if color == 'red':
+            tinted[:, :, 1] = 0  # Remove green
+            tinted[:, :, 2] = 0  # Remove blue
+        elif color == 'green':
+            tinted[:, :, 0] = 0  # Remove red
+            tinted[:, :, 2] = 0  # Remove blue
+        elif color == 'blue':
+            tinted[:, :, 0] = 0  # Remove red
+            tinted[:, :, 1] = 0  # Remove green
+        elif color == 'yellow':
+            tinted[:, :, 2] = 0  # Remove blue (Red + Green = Yellow)
+        self.image = tinted
+        self.display_image(self.image)
 if __name__ == '__main__':
     root = tk.Tk()
     app = ImageEditorApp(root)
