@@ -7,6 +7,7 @@ import numpy as np
 import copy
 
 # Main Application Class
+# check
 class ImageEditorApp:
     def __init__(self, root):
         self.root = root
