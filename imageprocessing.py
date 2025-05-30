@@ -70,7 +70,7 @@ class ImageEditorApp:
         self.canvas.bind("<ButtonPress-1>", self.on_mouse_press)
         self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_mouse_release)
-
+# part1 Image Loading
     def load_image(self):
         path = filedialog.askopenfilename()
         if path:
