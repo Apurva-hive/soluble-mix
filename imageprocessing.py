@@ -81,7 +81,7 @@ class ImageEditorApp:
             self.cropped_img = None
             self.display_image(self.image)
             self.cropped_canvas.delete("all")
-#part2 image cropping
+#part2 saving of the modified image
     def save_cropped_image(self):
         if self.cropped_img is not None:
             file_path = filedialog.asksaveasfilename(defaultextension=".png")
@@ -96,7 +96,7 @@ class ImageEditorApp:
         self.tk_image = ImageTk.PhotoImage(img_pil)
         self.canvas.delete("all")
         self.canvas.create_image(0, 0, anchor='nw', image=self.tk_image)
-
+#part3 Image Cropping
     def display_cropped_image(self, img):
         img_pil = Image.fromarray(img)
         tk_cropped = ImageTk.PhotoImage(img_pil)
@@ -122,7 +122,7 @@ class ImageEditorApp:
         cropped = self.image[y1:y2, x1:x2]
         self.cropped_img = cropped
         self.display_cropped_image(cropped)
-
+#part4 Image Resizing
     def resize_image(self, value):
         if self.cropped_img is None:
             return
@@ -130,7 +130,7 @@ class ImageEditorApp:
         new_size = (int(self.cropped_img.shape[1] * scale), int(self.cropped_img.shape[0] * scale))
         resized = cv2.resize(self.cropped_img, new_size)
         self.display_cropped_image(resized)
- # Undo last image change
+ # Implement undo/redo functionality :Undo last image change
     def undo(self):
         if self.undo_stack:
             self.redo_stack.append(copy.deepcopy(self.image))
