@@ -74,6 +74,7 @@ class Player(pygame.sprite.Sprite):
         if keys_pressed[pygame.K_SPACE] and not self.jumping:
             self.velocity_y = -15
             self.jumping = True
+            jump_sound.play()
         
         # Shoot cooldown timer
         if self.shoot_cooldown > 0:
