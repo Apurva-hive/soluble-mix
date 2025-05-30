@@ -81,7 +81,7 @@ class ImageEditorApp:
             self.cropped_img = None
             self.display_image(self.image)
             self.cropped_canvas.delete("all")
-
+#part2 image cropping
     def save_cropped_image(self):
         if self.cropped_img is not None:
             file_path = filedialog.asksaveasfilename(defaultextension=".png")
