@@ -1,7 +1,7 @@
 import pygame
 import random
 
-
+pygame.mixer.init()
 # Initialize Pygame
 pygame.init()
 
@@ -24,6 +24,14 @@ YELLOW = (255, 255, 0)
 # Global constants
 GRAVITY = 0.8
 GROUND_LEVEL = SCREEN_HEIGHT - 50
+
+#Background_Music
+pygame.mixer.music.load("progame.mp3")
+pygame.mixer.music.play(-1)
+
+#Jump_Sound
+jump_sound = pygame.mixer.Sound("jump.mp3")
+
 
 # Classes
 # This initializes the speed , surface, health , jumps lives of the player
