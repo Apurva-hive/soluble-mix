@@ -1,10 +1,11 @@
 import pygame
 import random
 
+
 # Initialize Pygame
 pygame.init()
 
-# Screen setup
+# Screen setup for the game
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 400
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Side-Scrolling Shooter")
@@ -12,7 +13,7 @@ pygame.display.set_caption("Side-Scrolling Shooter")
 clock = pygame.time.Clock()
 FONT = pygame.font.SysFont("Arial", 20)
 
-# Colors
+# Colors to be used inside the game for player, enemies , power ups , bullets.
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -25,6 +26,7 @@ GRAVITY = 0.8
 GROUND_LEVEL = SCREEN_HEIGHT - 50
 
 # Classes
+# This initializes the speed , surface, health , jumps lives of the player
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -46,6 +48,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.speed
         
         # Keep player on screen
+        # This initializes how the arrows in the keypad behave on press.
         if self.rect.left < 0:
             self.rect.left = 0
         if self.rect.right > SCREEN_WIDTH:
@@ -84,6 +87,7 @@ class Player(pygame.sprite.Sprite):
                 return True  # Player died
         return False
 
+#This function inherits from pygame and is used to hit the bullets
 class Projectile(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
@@ -97,7 +101,7 @@ class Projectile(pygame.sprite.Sprite):
         self.rect.x += self.speed
         if self.rect.left > SCREEN_WIDTH:
             self.kill()
-
+#We have two types of enemy the boss and the normal enemy and each of them has their own health point
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, is_boss=False):
         super().__init__()
@@ -127,6 +131,7 @@ class Enemy(pygame.sprite.Sprite):
             return True  # Enemy died
         return False
 
+##We do have collectibles inside the gamewhich increases health or the whole life
 class Collectible(pygame.sprite.Sprite):
     def __init__(self, x, y, kind):
         super().__init__()
@@ -138,7 +143,7 @@ class Collectible(pygame.sprite.Sprite):
             self.image.fill(WHITE)
         self.rect = self.image.get_rect(center=(x, y))
 
-# Level design and game management
+# level definitions and game management
 class Level:
     def __init__(self, number):
         self.number = number
@@ -174,11 +179,15 @@ def draw_text(surface, text, x, y, color=WHITE):
 
 def game_over_screen(score):
     screen.fill(BLACK)
-    draw_text(screen, "GAME OVER", SCREEN_WIDTH//2 - 70, SCREEN_HEIGHT//2 - 30, RED)
+    if score >= 300:
+        draw_text(screen, "YOU WIN!", SCREEN_WIDTH//2 - 70, SCREEN_HEIGHT//2 - 30, GREEN)
+    else:
+        draw_text(screen, "GAME OVER", SCREEN_WIDTH//2 - 70, SCREEN_HEIGHT//2 - 30, RED)
     draw_text(screen, f"Final Score: {score}", SCREEN_WIDTH//2 - 80, SCREEN_HEIGHT//2, WHITE)
     draw_text(screen, "Press R to Restart or Q to Quit", SCREEN_WIDTH//2 - 150, SCREEN_HEIGHT//2 + 30, WHITE)
     pygame.display.update()
 
+## This is the main function where all the logics of the game are embedded 
 def main():
     player = Player()
     projectiles = pygame.sprite.Group()
@@ -252,19 +261,23 @@ def main():
                     score += 100
             
             # Level progression
+            # Level progression based on score  
+            # Spawn boss only when all normal enemies are defeated and boss not spawned
             if len(level.enemies) == 0 and not level.boss_spawned:
-                # Spawn boss
                 level.spawn_boss()
-            
-            # If boss defeated, go to next level or end
-            if level.boss_spawned and len(level.enemies) == 0:
-                if current_level_number < 3:
-                    current_level_number += 1
-                    level = Level(current_level_number)
-                else:
-                    # Game finished
+            if current_level_number == 1 and score >= 1000:
+                current_level_number = 2
+                level = Level(current_level_number)
+            elif current_level_number == 2 and score >= 2000:
+                current_level_number = 3
+                level = Level(current_level_number)
+            elif current_level_number == 3 and score >= 3000:
+                if not level.boss_spawned:
+                    level.spawn_boss()
+                elif len(level.enemies) == 0:
+                    # Boss defeated
                     game_over = True
-            
+                        
             # Draw everything
             screen.fill(BLACK)
             screen.blit(player.image, player.rect)
@@ -272,12 +285,13 @@ def main():
             level.enemies.draw(screen)
             level.collectibles.draw(screen)
             
-            # Draw HUD
+            # Draw HUD meaning that it draws the score , lives , level inside the game screen
             draw_text(screen, f"Score: {score}", 10, 10)
             draw_text(screen, f"Lives: {player.lives}", 10, 35)
             draw_health_bar(screen, 10, 60, player.health, 100)
+            draw_text(screen, f"Level: {current_level_number}", 10, 85)
             
-            # Draw enemies health bars
+            # draws enemyh health bars
             for enemy in level.enemies:
                 draw_health_bar(screen, enemy.rect.x, enemy.rect.y - 10, enemy.health, 200 if enemy.is_boss else 50, enemy.rect.width, 5)
             
