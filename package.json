@@ -16,5 +16,8 @@
     "url": "https://github.com/Apurva-hive/soluble-mix/issues"
   },
   "homepage": "https://github.com/Apurva-hive/soluble-mix#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "ptl": "^0.0.3"
+  }
 }
